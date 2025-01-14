@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        #qr-code {
+            margin: 20px 0;
+        }
+        label, input, button {
+            display: block;
+            margin: 10px auto;
+        }
+        input, button {
+            padding: 10px;
+            font-size: 16px;
+        }
+        input {
+            width: 100%;
+        }
+        button {
+            cursor: pointer;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>QR Code Generator</h1>
+        <label for="place-id">Enter Place ID:</label>
+        <input type="text" id="place-id" placeholder="Enter Google Place ID">
+
+        <label for="custom-caption">Custom Caption:</label>
+        <input type="text" id="custom-caption" placeholder="Enter Custom Caption">
+
+        <button onclick="generateQRCode()">Generate QR Code</button>
+
+        <div id="qr-code"></div>
+
+        <a id="download-link" style="display:none;" download="qr_code.png">Download QR Code</a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+    <script>
+        function generateQRCode() {
+            const placeId = document.getElementById('place-id').value.trim();
+            const customCaption = document.getElementById('custom-caption').value.trim();
+            const qrCodeDiv = document.getElementById('qr-code');
+            const downloadLink = document.getElementById('download-link');
+
+            if (!placeId) {
+                alert('Please enter a valid Place ID.');
+                return;
+            }
+
+            const url = `https://search.google.com/local/writereview?placeid=${placeId}`;
+
+            // Clear existing QR Code and Download Link
+            qrCodeDiv.innerHTML = '';
+            downloadLink.style.display = 'none';
+
+            // Generate QR Code
+            QRCode.toCanvas(url, { width: 256 }, (error, canvas) => {
+                if (error) {
+                    console.error(error);
+                    alert('Failed to generate QR code.');
+                    return;
+                }
+
+                qrCodeDiv.appendChild(canvas);
+
+                // Add caption below QR Code
+                const caption = document.createElement('p');
+                caption.textContent = customCaption || 'Please provide feedback to improve our business.';
+                qrCodeDiv.appendChild(caption);
+
+                // Prepare for download
+                canvas.toBlob(blob => {
+                    const url = URL.createObjectURL(blob);
+                    downloadLink.href = url;
+                    downloadLink.textContent = 'Download QR Code';
+                    downloadLink.style.display = 'block';
+                });
+            });
+        }
+    </script>
+</body>
+</html>
